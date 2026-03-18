@@ -28,13 +28,13 @@
 <body class="bg-slate-50 min-h-screen pb-24 text-slate-900">
 
     <!-- Print Headers (Hidden on screen) -->
-    <div id="printHeader" class="print-only p-4 border-b mb-4">
-        <div class="flex justify-between items-end">
+    <div id="printHeader" class="print-only p-4 border-b-2 border-slate-900 mb-6">
+        <div class="flex justify-between items-center">
             <div>
-                <h1 id="printTitle" class="text-xl font-bold">Pharmacy Roster</h1>
-                <p id="printSubtitle" class="text-slate-500 text-sm"></p>
+                <h1 id="printTitle" class="text-2xl font-black tracking-tight text-slate-900">Pharmacy Roster</h1>
+                <p id="printSubtitle" class="text-slate-500 font-medium"></p>
             </div>
-            <div id="printStats" class="text-right text-sm font-bold space-y-1">
+            <div id="printStats" class="flex gap-4">
                 <!-- Stats injected here -->
             </div>
         </div>
@@ -101,8 +101,8 @@
         <!-- Roster Table -->
         <div id="rosterCard" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden roster-card">
             <div class="bg-slate-900 p-4 flex justify-between items-center text-white no-print">
-                <span id="currentDayTitle" class="text-sm font-bold uppercase tracking-widest">Monday Schedule</span>
-                <button onclick="addShift()" class="bg-blue-600 hover:bg-blue-500 text-xs px-4 py-2 rounded-lg font-bold transition-colors shadow-lg">+ Add Shift</button>
+                <span id="currentDayTitle" class="text-sm font-bold uppercase tracking-widest text-blue-100">Monday Schedule</span>
+                <button onclick="addShift()" class="bg-blue-600 hover:bg-blue-500 text-xs px-4 py-2 rounded-lg font-bold transition-colors shadow-lg text-white">+ Add Shift</button>
             </div>
             
             <div class="hidden md:grid grid-cols-12 gap-2 p-3 bg-slate-50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-tighter">
@@ -124,7 +124,7 @@
             </div>
         </div>
 
-        <!-- Coverage/Action Area -->
+        <!-- Action Area -->
         <div class="mt-6 flex flex-col md:flex-row gap-4 no-print">
             <div id="coverageWarning" class="flex-1 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3 hidden">
                 <span class="text-xl">⚠️</span>
@@ -135,10 +135,7 @@
             </div>
             
             <div class="flex flex-wrap gap-2">
-                <button onclick="printDaily()" class="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all">
-                    Print Daily
-                </button>
-                <button onclick="printWeekly()" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all">
+                <button onclick="printWeekly()" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md">
                     Print Weekly Summary
                 </button>
                 <button onclick="clearAllData()" class="px-6 py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-all">
@@ -238,7 +235,7 @@
                 empty.classList.add('hidden');
                 list.innerHTML = dayShifts.map(shift => `
                     <div class="p-3 md:grid md:grid-cols-12 gap-2 flex flex-col items-center border-b border-slate-50">
-                        <div class="col-span-3 w-full">
+                        <div class="col-span-3 w-full text-left">
                             <input type="text" value="${shift.name}" onchange="updateShift(${shift.id}, 'name', this.value)" 
                                 class="font-bold text-slate-700 border-none bg-transparent focus:ring-0 w-full p-0 text-sm">
                             <select onchange="updateShift(${shift.id}, 'role', this.value)" 
@@ -304,19 +301,6 @@
             return { weeklyTotal, daysWithStaff };
         }
 
-        function printDaily() {
-            const startDate = new Date(weekStartStr);
-            const d = new Date(startDate);
-            d.setDate(startDate.getDate() + currentDay);
-            
-            document.getElementById('printTitle').innerText = "Daily Pharmacy Roster";
-            document.getElementById('printSubtitle').innerText = `${dayNames[currentDay]}, ${d.toLocaleDateString('en-AU')}`;
-            document.getElementById('printStats').innerHTML = "";
-            document.getElementById('printTableContainer').innerHTML = ""; 
-            
-            window.print();
-        }
-
         function printWeekly() {
             const container = document.getElementById('printTableContainer');
             const statsContainer = document.getElementById('printStats');
@@ -331,12 +315,18 @@
             document.getElementById('printSubtitle').innerText = `Period: ${startDate.toLocaleDateString('en-AU')} to ${dEnd.toLocaleDateString('en-AU')}`;
             
             statsContainer.innerHTML = `
-                <div>Weekly Expenditure: $${totals.weeklyTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
-                <div class="text-blue-600 font-bold">Average Daily Cost: $${avgCost.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                <div style="background: #f1f5f9; padding: 8px 16px; border-radius: 99px; border: 1px solid #e2e8f0; text-align: right;">
+                    <div style="font-size: 8px; text-transform: uppercase; color: #64748b; font-weight: 800; line-height: 1;">Total Expenditure</div>
+                    <div style="font-size: 14px; font-weight: 900; color: #0f172a;">$${totals.weeklyTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                </div>
+                <div style="background: #eff6ff; padding: 8px 16px; border-radius: 99px; border: 1px solid #bfdbfe; text-align: right;">
+                    <div style="font-size: 8px; text-transform: uppercase; color: #3b82f6; font-weight: 800; line-height: 1;">Average Daily</div>
+                    <div style="font-size: 14px; font-weight: 900; color: #1e40af;">$${avgCost.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                </div>
             `;
 
             // Landscape Horizontal Layout (7 columns)
-            let html = '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">';
+            let html = '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;">';
             
             weeklyData.forEach((day, idx) => {
                 const dDay = new Date(startDate);
@@ -345,22 +335,32 @@
                 day.forEach(s => dayCost += (calculateHours(s.start, s.end) * s.rate));
 
                 html += `
-                    <div style="border: 1px solid #e2e8f0; border-radius: 4px; display: flex; flex-direction: column;">
-                        <div style="background: #f8fafc; padding: 4px; text-align: center; border-bottom: 1px solid #e2e8f0;">
-                            <div style="font-weight: 800; font-size: 10px; text-transform: uppercase;">${dayNames[idx]}</div>
-                            <div style="font-size: 9px; color: #64748b;">${dDay.toLocaleDateString('en-AU')}</div>
+                    <div style="border: 2px solid #334155; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; background: white;">
+                        <div style="background: #1e293b; padding: 6px; text-align: center; color: white;">
+                            <div style="font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">${dayNames[idx]}</div>
+                            <div style="font-size: 10px; opacity: 0.8; font-weight: 500;">${dDay.toLocaleDateString('en-AU')}</div>
                         </div>
-                        <div style="flex-grow: 1; min-height: 100px; padding: 4px; font-size: 9px;">
-                            ${day.length === 0 ? '<div style="color:#cbd5e1; text-align:center; padding-top:20px;">Closed</div>' : 
-                              day.map(s => `
-                                <div style="margin-bottom: 6px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 4px;">
-                                    <div style="font-weight: 700;">${s.name}</div>
-                                    <div style="color: #64748b; font-size: 8px;">${s.role === 'ph' ? 'PH' : 'ASST'}</div>
-                                    <div style="font-weight: 600;">${s.start}-${s.end}</div>
+                        <div style="flex-grow: 1; min-height: 160px; padding: 6px; font-size: 10px; background: #fdfdfd;">
+                            ${day.length === 0 ? '<div style="color:#cbd5e1; text-align:center; padding-top:40px; font-style: italic; font-weight: 600;">Closed</div>' : 
+                              day.map(s => {
+                                const isPH = s.role === 'ph';
+                                const bgColor = isPH ? '#eff6ff' : '#ecfdf5';
+                                const textColor = isPH ? '#1e40af' : '#065f46';
+                                const badgeColor = isPH ? '#3b82f6' : '#10b981';
+                                
+                                return `
+                                <div style="margin-bottom: 8px; border: 1px solid #f1f5f9; background: ${bgColor}; border-radius: 6px; padding: 6px;">
+                                    <div style="font-weight: 800; color: ${textColor};">${s.name}</div>
+                                    <div style="display: inline-block; background: ${badgeColor}; color: white; font-size: 8px; padding: 1px 4px; border-radius: 3px; font-weight: 900; text-transform: uppercase; margin-top: 2px;">
+                                        ${isPH ? 'Pharmacist' : 'Assistant'}
+                                    </div>
+                                    <div style="font-weight: 700; margin-top: 4px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 2px; color: #475569;">
+                                        ${s.start} - ${s.end}
+                                    </div>
                                 </div>
-                            `).join('')}
+                              `}).join('')}
                         </div>
-                        <div style="background: #f8fafc; padding: 4px; text-align: right; border-top: 1px solid #e2e8f0; font-weight: 800; font-size: 10px;">
+                        <div style="background: #f8fafc; padding: 6px; text-align: right; border-top: 2px solid #334155; font-weight: 900; font-size: 11px; color: #0f172a;">
                             $${dayCost.toFixed(2)}
                         </div>
                     </div>
@@ -372,9 +372,12 @@
             window.print();
         }
 
-        // Init
+        // Initialize App
         document.getElementById('weekStart').value = weekStartStr;
         updateDates();
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
